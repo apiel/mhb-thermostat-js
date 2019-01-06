@@ -2,5 +2,8 @@
   "name": "mhb-thermostat-js",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "moment": "^2.23.0"
+  }
 }
