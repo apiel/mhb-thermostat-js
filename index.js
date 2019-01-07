@@ -45,38 +45,38 @@ function main() {
     const data = getThermostatData();
     if (!data) {
         console.log('Cannot access thermostat to get data');
-        return;
-    }
-    const { hour, min, thermostat_temp } = data;
-
-    const currentTime = moment({ hour, minute: min });
-    const startTime = moment({ hour: config.start.start_hour, minute: config.start.start_minute });
-    const endTime = moment({ hour: config.end.start_hour, minute: config.end.start_minute });
-
-    isHeatingTime = currentTime.isBetween(startTime , endTime);
-    let temp = config.end.temp;
-    if (isHeatingTime && someOneIsAtHome()) {
-        temp = config.start.temp;
-    }
-    console.log(`need to have temp ${temp}`);
-
-    if (thermostat_temp === temp) {
-        console.log('thermostat is already set to this temperature. No need to do anything.');
     } else {
-        console.log('need to update temperature of the thermostat.');
+        const { hour, min, thermostat_temp } = data;
 
-        const nextTime = currentTime.add(1, 'minutes');
-        const schedules = [[
-            config.start,
-            config.start,
-            { temp, start_hour: nextTime.hours(), start_minute: nextTime.minutes() },
-            config.end,
-            config.end,
-            config.end,
-        ], [ config.start, config.end ]];
-
-        console.log('new schedules', schedules);
-        setThermostatSchedules(schedules);
+        const currentTime = moment({ hour, minute: min });
+        const startTime = moment({ hour: config.start.start_hour, minute: config.start.start_minute });
+        const endTime = moment({ hour: config.end.start_hour, minute: config.end.start_minute });
+    
+        isHeatingTime = currentTime.isBetween(startTime , endTime);
+        let temp = config.end.temp;
+        if (isHeatingTime && someOneIsAtHome()) {
+            temp = config.start.temp;
+        }
+        console.log(`need to have temp ${temp}`);
+    
+        if (thermostat_temp === temp) {
+            console.log('thermostat is already set to this temperature. No need to do anything.');
+        } else {
+            console.log('need to update temperature of the thermostat.');
+    
+            const nextTime = currentTime.add(1, 'minutes');
+            const schedules = [[
+                config.start,
+                config.start,
+                { temp, start_hour: nextTime.hours(), start_minute: nextTime.minutes() },
+                config.end,
+                config.end,
+                config.end,
+            ], [ config.start, config.end ]];
+    
+            console.log('new schedules', schedules);
+            setThermostatSchedules(schedules);
+        }
     }
     setTimeout(main, 95 * 1000); // every 65 sec
 }

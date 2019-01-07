@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "status": "systemctl status mhb-thermostat-js.service",
+    "prod": "sudo systemctl start mhb-thermostat-js",
+    "stop": "sudo systemctl stop mhb-thermostat-js",
+    "restart": "sudo systemctl restart mhb-thermostat-js",
+    "log": "journalctl -u mhb-thermostat-js.service -f"
+  },
   "dependencies": {
     "moment": "^2.23.0"
   }
