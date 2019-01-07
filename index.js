@@ -41,7 +41,7 @@ function setThermostatSchedules(schedules) {
     console.log('setThermostatSchedules', result);
 }
 
-function start() {
+function main() {
     const data = getThermostatData();
     if (!data) {
         console.log('Cannot access thermostat to get data');
@@ -65,10 +65,11 @@ function start() {
     } else {
         console.log('need to update temperature of the thermostat.');
 
+        const nextTime = currentTime.add(1, 'minutes');
         const schedules = [[
             config.start,
             config.start,
-            { temp, start_hour: hour, start_minute: min+1 }, // we might use moment for the +1 min
+            { temp, start_hour: nextTime.hours(), start_minute: nextTime.minutes() },
             config.end,
             config.end,
             config.end,
@@ -77,10 +78,9 @@ function start() {
         console.log('new schedules', schedules);
         setThermostatSchedules(schedules);
     }
+    setTimeout(main, 95 * 1000); // every 65 sec
 }
-start();
+main();
 
 // if thermostat_temp !== than awayTemp && warmTemp dont do anything
 // but if nobody is home for more than 1h then set awayTemp
-
-// --schedule='[[{\"start_hour\":6,\"temp\":23.0,\"start_minute\":0},...],[...]]'" # ./broadlink-thermostat-cli.py --schedule='[[{"start_hour":6,"temp":22.5,"start_minute":0},{"start_hour":23,"temp":15.0,"start_minute":0},{"start_hour":23,"temp":15.0,"start_minute":0},{"start_hour":23,"temp":15.0,"start_minute":0},{"start_hour":23,"temp":15.0,"start_minute":0},{"start_hour":23,"temp":15.0,"start_minute":0}],[{"start_hour":6,"temp":22.5,"start_minute":0},{"start_hour":23,"temp":15.0,"start_minute":0}]]
