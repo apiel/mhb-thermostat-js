@@ -68,7 +68,7 @@ function start() {
         const schedules = [[
             config.start,
             config.start,
-            { temp, start_hour: hour, start_minute: min },
+            { temp, start_hour: hour, start_minute: min+1 }, // we might use moment for the +1 min
             config.end,
             config.end,
             config.end,
