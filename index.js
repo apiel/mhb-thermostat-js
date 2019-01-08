@@ -29,6 +29,12 @@ function someOneIsAtHome() {
     return intersection.length > 0;
 }
 
+let tryToChangeSchedule = 0;
+function isAllowToChangeSchedule() {
+    tryToChangeSchedule++;
+    return tryToChangeSchedule > 2;
+}
+
 const baseCmd = 'cd ../broadlink-thermostat-cli/ && ./broadlink-thermostat-cli.py';
 function getThermostatData() {
     const result = execSync(baseCmd, { encoding: 'utf8' });
@@ -104,9 +110,14 @@ function thermostatService({ hour, min, thermostat_temp }) {
 
     if (thermostat_temp === temp) {
         console.log('thermostat is already set to this temperature. No need to do anything.');
+        tryToChangeSchedule = 0;
     } else {
         console.log('need to update temperature of the thermostat.');
-        setNextSchedule(currentTime, temp);
+        // if (isAllowToChangeSchedule()) {
+            setNextSchedule(currentTime, temp);
+        // } else {
+        //     console.log('wait a bit before to change...', tryToChangeSchedule);
+        // }
     }
 }
 
@@ -131,3 +142,5 @@ main();
 
 // if thermostat_temp !== than awayTemp && warmTemp dont do anything
 // but if nobody is home for more than 1h then set awayTemp
+
+// start heating only after 20min
