@@ -14,6 +14,7 @@ const config = {
 
 const macAddr = ['30:07:4D:ED:EF:86', '8C:8E:F2:B3:9F:47']
 
+// we might want to temporise someoneIsAtHome
 function someOneIsAtHome() {
     const path = '../upc-box-ips/devices.json';
     const devices = JSON.parse(fs.readFileSync(path, 'utf8'));
@@ -29,12 +30,6 @@ function someOneIsAtHome() {
     return intersection.length > 0;
 }
 
-let tryToChangeSchedule = 0;
-function isAllowToChangeSchedule() {
-    tryToChangeSchedule++;
-    return tryToChangeSchedule > 2;
-}
-
 const baseCmd = 'cd ../broadlink-thermostat-cli/ && ./broadlink-thermostat-cli.py';
 function getThermostatData() {
     const result = execSync(baseCmd, { encoding: 'utf8' });
@@ -42,7 +37,7 @@ function getThermostatData() {
 
     if (results.length === 12) {
         const data = JSON.parse(results[9]);
-        console.log('data', data);
+        // console.log('getThermostatData', data);
         return data;
     }
 }
@@ -99,25 +94,24 @@ function isHeatingTime(currentTime) {
     return currentTime.isBetween(startTime , endTime);
 }
 
-function thermostatService({ hour, min, thermostat_temp }) {
-    const currentTime = moment({ hour, minute: min });
-    let temp = config.end.temp;
-    if (isHeatingTime(currentTime) && someOneIsAtHome()) {
-        temp = config.start.temp;
-    }
-    failedDeviceRetry = 0;
-    console.log(`need to have temp ${temp}`);
-
-    if (thermostat_temp === temp) {
-        console.log('thermostat is already set to this temperature. No need to do anything.');
-        tryToChangeSchedule = 0;
+function thermostatService({ hour, min, thermostat_temp, auto_mode }) {
+    if (!auto_mode) {
+        console.log('Manual mode, do nothing...');
     } else {
-        console.log('need to update temperature of the thermostat.');
-        // if (isAllowToChangeSchedule()) {
+        const currentTime = moment({ hour, minute: min });
+        let temp = config.end.temp;
+        if (isHeatingTime(currentTime) && someOneIsAtHome()) {
+            temp = config.start.temp;
+        }
+        failedDeviceRetry = 0;
+        console.log(`need to have temp ${temp}`);
+
+        if (thermostat_temp === temp) {
+            console.log('thermostat is already set to this temperature. No need to do anything.');
+        } else {
+            console.log('need to update temperature of the thermostat.');
             setNextSchedule(currentTime, temp);
-        // } else {
-        //     console.log('wait a bit before to change...', tryToChangeSchedule);
-        // }
+        }
     }
 }
 
